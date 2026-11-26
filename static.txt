@@ -1,0 +1,69 @@
+Experiment 4: Static Routing
+
+Devices
+
+2 PCs (End Devices → PC-PT)
+2 Switches: 2960-24TT (Switches → 2960)
+2 Routers: Cisco 2911 (Network Devices → Routers → 2911)
+
+Wires
+
+PC0 FastEthernet0 → Switch0 Fa0/1: Copper Straight-Through
+Switch0 Fa0/2 → Router0 G0/0: Copper Straight-Through
+Router0 G0/1 → Router1 G0/1: Copper Cross-Over
+Router1 G0/0 → Switch1 Fa0/2: Copper Straight-Through
+Switch1 Fa0/1 → PC1 FastEthernet0: Copper Straight-Through
+
+Addressing
+
+Device	Interface	IP Address	Mask / Gateway
+Router0	G0/0	192.168.1.1	255.255.255.0
+Router0	G0/1	10.0.0.1	255.255.255.252
+Router1	G0/0	192.168.2.1	255.255.255.0
+Router1	G0/1	10.0.0.2	255.255.255.252
+PC0	NIC	192.168.1.10	255.255.255.0, GW 192.168.1.1
+PC1	NIC	192.168.2.10	255.255.255.0, GW 192.168.2.1
+
+Step 1: Configure Router0
+
+enable
+configure terminal
+interface g0/0
+ ip address 192.168.1.1 255.255.255.0
+ no shutdown
+ exit
+interface g0/1
+ ip address 10.0.0.1 255.255.255.252
+ no shutdown
+ exit
+
+Step 2: Configure Router1
+
+enable
+configure terminal
+interface g0/0
+ ip address 192.168.2.1 255.255.255.0
+ no shutdown
+ exit
+interface g0/1
+ ip address 10.0.0.2 255.255.255.252
+ no shutdown
+ exit
+
+Step 3: Static route on Router0 (to reach LAN 2)
+
+ip route 192.168.2.0 255.255.255.0 10.0.0.2
+
+Step 4: Static route on Router1 (to reach LAN 1)
+
+ip route 192.168.1.0 255.255.255.0 10.0.0.1
+
+Step 5: Configure PCs
+
+PC0: IP 192.168.1.10, Mask 255.255.255.0, GW 192.168.1.1
+PC1: IP 192.168.2.10, Mask 255.255.255.0, GW 192.168.2.1
+
+Step 6: Verify
+
+show ip route        (S 192.168.2.0/24 on Router0, S 192.168.1.0/24 on Router1)
+ping 192.168.2.10    (from PC0)
