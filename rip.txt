@@ -1,0 +1,76 @@
+Experiment 1: RIP Version 2
+
+Devices
+
+2 PCs (End Devices → PC)
+2 Routers: Cisco 1941 (Network Devices → Routers → 1941)
+
+Wires
+
+PC0 FastEthernet0 → Router0 G0/0: Copper Straight-Through
+Router0 G0/1 → Router1 G0/0: Copper Cross-Over
+Router1 G0/1 → PC1 FastEthernet0: Copper Straight-Through
+
+Addressing
+
+Device	Interface	IP Address	Mask / Gateway
+Router0	G0/0	192.168.1.1	255.255.255.0
+Router0	G0/1	10.0.12.1	255.255.255.252
+Router1	G0/0	10.0.12.2	255.255.255.252
+Router1	G0/1	192.168.2.1	255.255.255.0
+PC0	NIC	192.168.1.2	255.255.255.0, GW 192.168.1.1
+PC1	NIC	192.168.2.2	255.255.255.0, GW 192.168.2.1
+
+Step 1: Configure Router0
+
+enable
+configure terminal
+interface g0/0
+ ip address 192.168.1.1 255.255.255.0
+ no shutdown
+ exit
+interface g0/1
+ ip address 10.0.12.1 255.255.255.252
+ no shutdown
+ exit
+
+Step 2: Configure Router1
+
+enable
+configure terminal
+interface g0/0
+ ip address 10.0.12.2 255.255.255.252
+ no shutdown
+ exit
+interface g0/1
+ ip address 192.168.2.1 255.255.255.0
+ no shutdown
+ exit
+
+Step 3: Enable RIP v2 on Router0
+
+router rip
+ version 2
+ no auto-summary
+ network 192.168.1.0
+ network 10.0.0.0
+ end
+
+Step 4: Enable RIP v2 on Router1
+
+router rip
+ version 2
+ no auto-summary
+ network 10.0.0.0
+ network 192.168.2.0
+ end
+
+Step 5: Configure PCs
+
+PC0: IP 192.168.1.2, Mask 255.255.255.0, GW 192.168.1.1
+PC1: IP 192.168.2.2, Mask 255.255.255.0, GW 192.168.2.1
+
+Step 6: Verify
+
+show ip route        (R 192.168.1.0/24 on Router1)
+ping 192.168.2.2     (from PC0)
